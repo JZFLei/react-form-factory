@@ -172,10 +172,32 @@ export default function TestForm(): JSX.Element {
       type: "Switch",
       inline: false,
       properties: {
-        name: "isAwesome",
-        label: "Are attendees awesome?",
+        name: "confetti",
+        label: "Turn on Confetti?",
         color: "primary",
         defaultValue: true,
+      },
+      validation: {
+        required: {
+          value: true,
+          message: "This is required.",
+        },
+      },
+    },
+    {
+      type: "Checkbox",
+      inline: false,
+      properties: {
+        name: "ready",
+        label: "Ready Player One?",
+        color: "primary",
+        defaultValue: false,
+      },
+      validation: {
+        required: {
+          value: true,
+          message: "This is required.",
+        },
       },
     },
   ];

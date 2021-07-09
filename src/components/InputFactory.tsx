@@ -1,5 +1,6 @@
 import {
   Box,
+  Checkbox,
   CheckboxProps,
   FormControl,
   FormControlLabel,
@@ -35,10 +36,14 @@ export type SwitchExtendedProps = SwitchProps & {
   label?: string;
 };
 
+export type CheckboxExtendedProps = SwitchProps & {
+  label?: string;
+};
+
 export type InputDefinitionMuiProps =
   | TextFieldProps
   | SelectProps
-  | CheckboxProps
+  | CheckboxExtendedProps
   | SwitchExtendedProps;
 
 export type Watcher = (
@@ -184,8 +189,8 @@ export default function InputFactory(
           component={"div"}
         >
           <Controller
-            render={({ field }) => (
-              <FormControl component={"fieldset"}>
+            render={({ field, fieldState: { error } }) => (
+              <FormControl component={"fieldset"} error={has(error, "message")}>
                 <FormControlLabel
                   control={
                     <Switch
@@ -197,6 +202,11 @@ export default function InputFactory(
                   }
                   label={properties.label}
                 />
+                {has(error, "message") && (
+                  <FormHelperText error={has(error, "message")}>
+                    {error?.message}
+                  </FormHelperText>
+                )}
               </FormControl>
             )}
             control={control}
@@ -208,7 +218,47 @@ export default function InputFactory(
       );
     }
     case "Checkbox": {
-      return <></>;
+      const properties = definition.properties as CheckboxExtendedProps;
+
+      return (
+        <Box
+          key={nanoid()}
+          {...(definition.inline && {
+            display: "inline-block",
+          })}
+          mt={2}
+          mb={2}
+          mr={4}
+          component={"div"}
+        >
+          <Controller
+            render={({ field, fieldState: { error } }) => (
+              <FormControl component={"fieldset"} error={has(error, "message")}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      {...omit(properties, "value", "defaultValue", "label")}
+                      onChange={field.onChange}
+                      checked={field.value}
+                      inputRef={field.ref}
+                    />
+                  }
+                  label={properties.label}
+                />
+                {has(error, "message") && (
+                  <FormHelperText error={has(error, "message")}>
+                    {error?.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            )}
+            control={control}
+            rules={definition.validation}
+            name={name}
+            defaultValue={properties.defaultValue}
+          />
+        </Box>
+      );
     }
   }
 }
