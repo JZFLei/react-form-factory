@@ -75,6 +75,7 @@ export default function TestForm(): JSX.Element {
         label: "Date of Event",
         variant: "outlined",
         type: "date",
+        defaultValue: new Date().toISOString().split("T")[0],
       },
       validation: {
         required: {
@@ -91,6 +92,7 @@ export default function TestForm(): JSX.Element {
         label: "Alarm Time",
         variant: "outlined",
         type: "time",
+        defaultValue: new Date().toISOString().split("T")[1].split(".")[0],
       },
       validation: {
         required: {
@@ -164,6 +166,16 @@ export default function TestForm(): JSX.Element {
       watch: {
         names: ["host", "attendees"],
         values: ["Jason", ["Cyrus", "Sebastian", "Rod"]],
+      },
+    },
+    {
+      type: "Switch",
+      inline: false,
+      properties: {
+        name: "isAwesome",
+        label: "Are attendees awesome?",
+        color: "primary",
+        defaultValue: true,
       },
     },
   ];

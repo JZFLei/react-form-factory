@@ -2,17 +2,24 @@ import {
   Box,
   CheckboxProps,
   FormControl,
+  FormControlLabel,
   FormHelperText,
   InputLabel,
   MenuItem,
-  OutlinedInput,
   Select,
   SelectProps,
+  Switch,
   SwitchProps,
   TextField,
   TextFieldProps,
 } from "@material-ui/core";
-import { Control, Controller, RegisterOptions } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  FieldValues,
+  RegisterOptions,
+  UseFormRegister,
+} from "react-hook-form";
 import { get, has, isEqual, omit } from "lodash";
 
 import React from "react";
@@ -21,14 +28,18 @@ import { nanoid } from "nanoid";
 export type InputDefinitionType =
   | "TextField"
   | "Select"
-  | "Toggle"
+  | "Switch"
   | "Checkbox";
+
+export type SwitchExtendedProps = SwitchProps & {
+  label?: string;
+};
 
 export type InputDefinitionMuiProps =
   | TextFieldProps
   | SelectProps
   | CheckboxProps
-  | SwitchProps;
+  | SwitchExtendedProps;
 
 export type Watcher = (
   names?: string | string[] | ((data: any, options: any) => void)
@@ -101,9 +112,6 @@ export default function InputFactory(
                 {...field}
                 error={has(error, "message")}
                 helperText={get(error, "message")}
-                InputLabelProps={{
-                  shrink: true,
-                }}
               />
             )}
             control={control}
@@ -116,6 +124,7 @@ export default function InputFactory(
     }
     case "Select": {
       const properties = definition.properties as SelectProps;
+
       return (
         <Box
           key={nanoid()}
@@ -130,24 +139,11 @@ export default function InputFactory(
           <Controller
             render={({ field, fieldState: { error } }) => (
               <FormControl variant={properties.variant}>
-                <InputLabel shrink={true} error={has(error, "message")}>
-                  {properties.label}
-                </InputLabel>
+                <InputLabel>{properties.label}</InputLabel>
                 <Select
-                  {...omit(properties, "value", "defaultValue", "label")}
+                  {...omit(properties, "value", "defaultValue")}
                   {...field}
                   error={has(error, "message")}
-                  input={
-                    <OutlinedInput
-                      notched
-                      name={properties.name}
-                      labelWidth={
-                        properties.label
-                          ? (properties.label as string).length * 8
-                          : 0
-                      }
-                    />
-                  }
                 >
                   {definition.options &&
                     definition.options.map((option) => {
@@ -173,8 +169,43 @@ export default function InputFactory(
         </Box>
       );
     }
-    case "Toggle": {
-      return <></>;
+    case "Switch": {
+      const properties = definition.properties as SwitchExtendedProps;
+
+      return (
+        <Box
+          key={nanoid()}
+          {...(definition.inline && {
+            display: "inline-block",
+          })}
+          mt={2}
+          mb={2}
+          mr={4}
+          component={"div"}
+        >
+          <Controller
+            render={({ field }) => (
+              <FormControl component={"fieldset"}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      {...omit(properties, "value", "defaultValue", "label")}
+                      onChange={field.onChange}
+                      checked={field.value}
+                      inputRef={field.ref}
+                    />
+                  }
+                  label={properties.label}
+                />
+              </FormControl>
+            )}
+            control={control}
+            rules={definition.validation}
+            name={name}
+            defaultValue={properties.defaultValue}
+          />
+        </Box>
+      );
     }
     case "Checkbox": {
       return <></>;
